@@ -524,7 +524,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
      */
     @Override
     protected void initInternal() throws LifecycleException {
-
+        log.info("StandardService向jmx中注册自己");
         super.initInternal();
         log.info("初始化Engine");
         if (engine != null) {
@@ -547,6 +547,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
         synchronized (connectorsLock) {
             for (Connector connector : connectors) {
                 try {
+                    log.info("初始化Connector,进而调用ProtocolHandler进行初始化,开启应用端口监听");
                     connector.init();
                 } catch (Exception e) {
                     String message = sm.getString(

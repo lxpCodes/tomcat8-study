@@ -67,6 +67,8 @@ public class Connector extends LifecycleMBeanBase  {
     }
 
     public Connector(String protocol) {
+        log.info("根据server.xml文件中配置的Protocol 【"+protocol+"】转为具体的Protocol");
+        //AjpNioProtocol AjpAprProtocol AjpNio2Protocol  Http11NioProtocol Http11Nio2Protocol Http11AprProtocol
         setProtocol(protocol);
         // Instantiate protocol handler
         ProtocolHandler p = null;
@@ -246,7 +248,7 @@ public class Connector extends LifecycleMBeanBase  {
      */
     protected boolean useBodyEncodingForURI = false;
 
-
+    //属性名映射
     protected static final HashMap<String,String> replacements = new HashMap<>();
     static {
         replacements.put("acceptCount", "backlog");
@@ -571,7 +573,7 @@ public class Connector extends LifecycleMBeanBase  {
             } else {
                 setProtocolHandlerClassName("org.apache.coyote.http11.Http11NioProtocol");
             }
-        } else if ("AJP/1.3".equals(protocol)) {
+        } else if ("AJP/1.3".equals(protocol)) {//AJP/1.3是面向数据包的，维持一个长连接，多个请求和响应重用连接
             if (aprConnector) {
                 setProtocolHandlerClassName("org.apache.coyote.ajp.AjpAprProtocol");
             } else {
@@ -935,25 +937,27 @@ public class Connector extends LifecycleMBeanBase  {
 
     @Override
     protected void initInternal() throws LifecycleException {
-
+        log.info(this.getClass().getName()+"   注册jmx");
         super.initInternal();
 
         // Initialize adapter
-        log.info("初始化适配器");
+        log.info("初始化CoyoteAdapter适配器,用于Coyote的Request、Response与HttpServlet的Request、Response适配");
         adapter = new CoyoteAdapter(this);
+        //指定适配器处理请求
         protocolHandler.setAdapter(adapter);
 
         // Make sure parseBodyMethodsSet has a default
         if( null == parseBodyMethodsSet ) {
             setParseBodyMethods(getParseBodyMethods());
         }
-
+        //不支持APR则报错
         if (protocolHandler.isAprRequired() &&
                 !AprLifecycleListener.isAprAvailable()) {
             throw new LifecycleException(
                     sm.getString("coyoteConnector.protocolHandlerNoApr",
                             getProtocolHandlerClassName()));
         }
+        //APR支持，且使用SSL,则使用OpenSSLImplementation
         if (AprLifecycleListener.isAprAvailable() &&
                 AprLifecycleListener.getUseOpenSSL() &&
                 protocolHandler instanceof AbstractHttp11JsseProtocol) {

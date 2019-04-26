@@ -43,6 +43,7 @@ public abstract class SocketProcessorBase<S> implements Runnable {
             // does not occur in parallel. The test below ensures that if the
             // first event to be processed results in the socket being closed,
             // the subsequent events are not processed.
+            //有可能同时触发读和写处理,上面的同步确保处理不会并行进行。下面的处理保证，如果要处理的第一个事件导致套接字关闭，则不会处理后续事件。
             if (socketWrapper.isClosed()) {
                 return;
             }

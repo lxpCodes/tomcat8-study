@@ -65,6 +65,7 @@ public class NioSelectorPool {
                 if ( SHARED_SELECTOR == null )  {
                     SHARED_SELECTOR = Selector.open();
                     log.info("Using a shared selector for servlet write/read");
+                    log.info("读写操作使用一个共享的selector");
                 }
             }
         }

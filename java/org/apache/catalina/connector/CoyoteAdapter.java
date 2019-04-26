@@ -297,7 +297,7 @@ public class CoyoteAdapter implements Adapter {
     @Override
     public void service(org.apache.coyote.Request req, org.apache.coyote.Response res)
             throws Exception {
-
+        log.info("将org.apache.coyote.Request Response转为org.apache.catalina.connector.Request  Response");
         Request request = (Request) req.getNote(ADAPTER_NOTES);
         Response response = (Response) res.getNote(ADAPTER_NOTES);
 
@@ -332,6 +332,7 @@ public class CoyoteAdapter implements Adapter {
         try {
             // Parse and set Catalina and configuration specific
             // request parameters
+            log.info("设置scheme serverName port sessionId");
             postParseSuccess = postParseRequest(req, request, res, response);
             if (postParseSuccess) {
                 //check valves if we support async
@@ -368,6 +369,7 @@ public class CoyoteAdapter implements Adapter {
                     request.getAsyncContextInternal().setErrorState(throwable, true);
                 }
             } else {
+                //非异步请求，则结束请求
                 request.finishRequest();
                 response.finishResponse();
             }
@@ -599,8 +601,8 @@ public class CoyoteAdapter implements Adapter {
             decodedURI.duplicate(undecodedURI);
 
             // Parse the path parameters. This will:
-            //   - strip out the path parameters
-            //   - convert the decodedURI to bytes
+            //   - strip out the path parameters 去掉路径参数
+            //   - convert the decodedURI to bytes 将decodedURI转换为字节
             parsePathParameters(req, request);
 
             // URI decoding
@@ -691,6 +693,7 @@ public class CoyoteAdapter implements Adapter {
             // Now we have the context, we can parse the session ID from the URL
             // (if any). Need to do this before we redirect in case we need to
             // include the session id in the redirect
+            //现在我们有了上下文，我们可以从URL解析会话ID(如果有的话)。需要在重定向之前执行此操作，以防需要在重定向中包含会话id
             String sessionID;
             if (request.getServletContext().getEffectiveSessionTrackingModes()
                     .contains(SessionTrackingMode.URL)) {
@@ -998,6 +1001,8 @@ public class CoyoteAdapter implements Adapter {
         // context, don't go looking for a session ID in a cookie as a cookie
         // from a parent context with a session ID may be present which would
         // overwrite the valid session ID encoded in the URL
+        //如果对当前上下文禁用了通过cookie进行会话跟踪，那么不要在cookie中寻找会话ID
+        //因为可能会出现来自父上下文的cookie，其中的会话ID会覆盖URL中编码的有效会话ID
         Context context = request.getMappingData().context;
         if (context != null && !context.getServletContext()
                 .getEffectiveSessionTrackingModes().contains(
@@ -1011,15 +1016,15 @@ public class CoyoteAdapter implements Adapter {
         if (count <= 0) {
             return;
         }
-
+        //默认值为 "JSESSIONID"
         String sessionCookieName = SessionConfig.getSessionCookieName(context);
 
         for (int i = 0; i < count; i++) {
             ServerCookie scookie = serverCookies.getCookie(i);
             if (scookie.getName().equals(sessionCookieName)) {
-                // Override anything requested in the URL
+                // Override anything requested in the URL requestedSessionId为空则进入if
                 if (!request.isRequestedSessionIdFromCookie()) {
-                    // Accept only the first session id cookie
+                    // Accept only the first session id cookie 仅接受第一个来自cookie的sessionid
                     convertMB(scookie.getValue());
                     request.setRequestedSessionId
                         (scookie.getValue().toString());
@@ -1030,8 +1035,9 @@ public class CoyoteAdapter implements Adapter {
                             request.getRequestedSessionId());
                     }
                 } else {
+                    //判断session是否过期
                     if (!request.isRequestedSessionIdValid()) {
-                        // Replace the session id until one is valid
+                        // Replace the session id until one is valid替换sessionID直到sessionid有效为止
                         convertMB(scookie.getValue());
                         request.setRequestedSessionId
                             (scookie.getValue().toString());

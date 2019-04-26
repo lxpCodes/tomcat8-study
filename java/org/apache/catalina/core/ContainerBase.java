@@ -894,6 +894,9 @@ public abstract class ContainerBase extends LifecycleMBeanBase
     @Override
     protected void initInternal() throws LifecycleException {
         BlockingQueue<Runnable> startStopQueue = new LinkedBlockingQueue<>();
+        log.info("初始化start-stop线程池");
+        //core线程与max是相等的,为1,允许code线程超时获取不到任务时退出线程,超时时间是10秒,超过10秒会销毁线程
+        //该线程池只在容器启动和停止的时候发挥作用
         startStopExecutor = new ThreadPoolExecutor(
                 getStartStopThreadsInternal(),
                 getStartStopThreadsInternal(), 10, TimeUnit.SECONDS,

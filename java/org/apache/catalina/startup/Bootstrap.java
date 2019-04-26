@@ -495,7 +495,7 @@ public final class Bootstrap {
                 args[args.length - 1] = "stop";
                 daemon.stop();
             } else if (command.equals("start")) {
-                daemon.setAwait(true);
+                daemon.setAwait(true);//让tomcat关闭端口阻塞监听关闭命令
                 daemon.load(args);
                 daemon.start();
             } else if (command.equals("stop")) {

@@ -1657,12 +1657,12 @@ public class Nio2Endpoint extends AbstractJsseEndpoint<Nio2Channel> {
                 try {
                     if (socketWrapper.getSocket().isHandshakeComplete()) {
                         // No TLS handshaking required. Let the handler
-                        // process this socket / event combination.
+                        // process this socket / event combination.不需要握手。让处理程序处理这个套接字/事件组合。
                         handshake = 0;
                     } else if (event == SocketEvent.STOP || event == SocketEvent.DISCONNECT ||
                             event == SocketEvent.ERROR) {
                         // Unable to complete the TLS handshake. Treat it as
-                        // if the handshake failed.
+                        // if the handshake failed.无法完成TLS握手。把它当作如果握手失败。
                         handshake = -1;
                     } else {
                         handshake = socketWrapper.getSocket().handshake();
@@ -1673,6 +1673,9 @@ public class Nio2Endpoint extends AbstractJsseEndpoint<Nio2Channel> {
                         // must always be OPEN_READ after it completes. It
                         // is OK to always set this as it is only used if
                         // the handshake completes.
+                        //握手过程从套接字读取/写入。因此，握手完成后，状态可能是OPEN_WRITE。
+                        //但是，握手发生在套接字打开时，所以在套接字完成后状态必须始终为OPEN_READ。
+                        //可以始终设置此值，因为只有在握手完成时才使用此值。
                         event = SocketEvent.OPEN_READ;
                     }
                 } catch (IOException x) {

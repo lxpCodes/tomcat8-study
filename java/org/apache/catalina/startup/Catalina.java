@@ -510,6 +510,7 @@ public class Catalina {
         initDirs();
 
         // Before digester - it may be needed
+        log.info("初始化jmx环境变量");
         initNaming();
 
         // Create and execute our Digester
@@ -580,6 +581,7 @@ public class Catalina {
 
             try {
                 inputSource.setByteStream(inputStream);
+                log.info("把Catalina作为一个顶级实例");
                 digester.push(this);
                 digester.parse(inputSource);
             } catch (SAXParseException spe) {

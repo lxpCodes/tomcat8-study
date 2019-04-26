@@ -525,8 +525,9 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             getLog().info(sm.getString("abstractProtocolHandler.init",
                     getName()));
 
+        getLog().info(this.getClass().getName() + "注册jmx");
         if (oname == null) {
-            // Component not pre-registered so register it
+            // Component not pre-registered so register it组件没有预先注册所以注册到jmx
             oname = createObjectName();
             if (oname != null) {
                 Registry.getRegistry(null, null).registerComponent(this, oname,

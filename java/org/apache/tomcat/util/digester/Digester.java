@@ -1656,7 +1656,7 @@ public class Digester extends DefaultHandler2 {
      * @see SetNextRule
      */
     public void addSetNext(String pattern, String methodName, String paramType) {
-        //将栈顶部对象作为参数传入
+
         addRule(pattern, new SetNextRule(methodName, paramType));
 
     }

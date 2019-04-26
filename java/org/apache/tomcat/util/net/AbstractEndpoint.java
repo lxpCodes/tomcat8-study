@@ -421,6 +421,7 @@ public abstract class AbstractEndpoint<S> {
      * Allows the server developer to specify the acceptCount (backlog) that
      * should be used for server sockets. By default, this value
      * is 100.
+     * 允许服务器开发人员指定应该用于服务器套接字的acceptCount (backlog)。默认情况下，这个值是100。
      */
     private int backlog = 100;
     public void setBacklog(int backlog) { if (backlog > 0) this.backlog = backlog; }
@@ -931,8 +932,10 @@ public abstract class AbstractEndpoint<S> {
             }
             Executor executor = getExecutor();
             if (dispatch && executor != null) {
+                //线程池处理SocketProcessor
                 executor.execute(sc);
             } else {
+                //调用SocketProcessor.run()处理请求
                 sc.run();
             }
         } catch (RejectedExecutionException ree) {

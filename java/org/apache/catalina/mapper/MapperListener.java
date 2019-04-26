@@ -93,16 +93,16 @@ public class MapperListener extends LifecycleMBeanBase
 
     @Override
     public void startInternal() throws LifecycleException {
-
+        log.info("设置状态:" +LifecycleState.STARTING);
         setState(LifecycleState.STARTING);
-
+        log.info("获取Engine容器，获取不到则返回");
         Engine engine = service.getContainer();
         if (engine == null) {
             return;
         }
-
+        log.info("获取默认Host");
         findDefaultHost();
-
+        log.info("递归给engine及子容器添加容器监听器和生命周期监听器");
         addListeners(engine);
 
         Container[] conHosts = engine.findChildren();
@@ -110,6 +110,7 @@ public class MapperListener extends LifecycleMBeanBase
             Host host = (Host) conHost;
             if (!LifecycleState.NEW.equals(host.getState())) {
                 // Registering the host will register the context and wrappers
+                log.info(host.getClass().getName() + "  注册到mapper");
                 registerHost(host);
             }
         }
